@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Đầy đủ tính năng</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #141414;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- MÀN HÌNH CHỌN PROFILE --- */
+        #profile-screen {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #141414;
+        }
+
+        #profile-screen h1 {
+            font-size: 3.5rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+
+        .profiles-grid {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .profile-card {
+            text-align: center;
+            cursor: pointer;
+            width: 140px;
+        }
+
+        .avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .profile-card:hover .avatar {
+            border-color: white;
+            transform: scale(1.05);
+        }
+
+        .profile-card span {
+            color: #808080;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .profile-card:hover span {
+            color: white;
+        }
+
+        .manage-profiles-btn {
+            background: transparent;
+            border: 1px solid #808080;
+            color: #808080;
+            padding: 0.7rem 1.5rem;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .manage-profiles-btn:hover {
+            border-color: white;
+            color: white;
+        }
+
+        /* --- MÀN HÌNH CHÍNH (BROWSE) --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 10%, transparent);
+            z-index: 100;
+            transition: background-color 0.3s;
+        }
+
+        .navbar.scrolled {
+            background-color: #141414;
+        }
+
+        .logo {
+            color: #E50914;
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-right: 40px;
+            cursor: pointer;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        .nav-links li {
+            color: #e5e5e5;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-links li:hover, .nav-links li.active {
+            color: #b3b3b3;
+            font-weight: bold;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Thanh tìm kiếm */
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid white;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            padding-left: 5px;
+            font-size: 0.9rem;
+        }
+
+        .search-box i {
+            color: white;
+        }
+
+        .user-profile-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .logout-btn {
+            background-color: #E50914;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background-color: #f40612;
+        }
+
+        /* --- BANNER --- */
+        .banner {
+            background-image: linear-gradient(to right, rgba(0,0,0,0.85), transparent), url('https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg');
+            background-size: cover;
+            background-position: center center;
+            color: white;
+            height: 580px;
+            position: relative;
+        }
+
+        .banner-contents {
+            margin-left: 50px;
+            padding-top: 180px;
+            max-width: 600px;
+        }
+
+        .banner-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            padding-bottom: 0.5rem;
+        }
+
+        .banner-description {
+            font-size: 1rem;
+            line-height: 1.4;
+            padding-top: 1rem;
+            max-width: 480px;
+            color: #ddd;
+        }
+
+        .banner-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .banner-btn {
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            outline: none;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            transition: background-color 0.2s;
+        }
+
+        .banner-btn.play {
+            background-color: white;
+            color: black;
+        }
+
+        .banner-btn.play:hover {
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+
+        .banner-btn.info {
+            background-color: rgba(109, 109, 110, 0.7);
+            color: white;
+        }
+
+        .banner-btn.info:hover {
+            background-color: rgba(109, 109, 110, 0.4);
+        }
+
+        .banner-fadeBottom {
+            height: 7.4rem;
+            background-image: linear-gradient(180deg, transparent, rgba(37,37,37,0.61), #141414);
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* --- HÀNG PHIM --- */
+        .content-area {
+            padding-bottom: 50px;
+        }
+
+        .row {
+            margin-left: 50px;
+            margin-bottom: 40px;
+        }
+
+        .row h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #e5e5e5;
+        }
+
+        .row-posters {
+            display: flex;
+            overflow-y: hidden;
+            overflow-x: scroll;
+            padding: 20px 0;
+            gap: 10px;
+            scrollbar-width: none;
+        }
+
+        .row-posters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .row-poster {
+            min-width: 220px;
+            height: 124px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 4px;
+            transition: transform 300ms ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .row-poster:hover {
+            transform: scale(1.08);
+            z-index: 50;
+        }
+
+        /* --- MODAL XEM VIDEO / CHI TIẾT --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #181818;
+            width: 700px;
+            max-width: 90%;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .modal-video {
+            width: 100%;
+            height: 380px;
+            background: black;
+        }
+
+        .modal-video iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .modal-details {
+            padding: 25px;
+        }
+
+        .modal-details h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-details p {
+            color: #aaa;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #181818;
+            border: 2px solid white;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .close-modal:hover {
+            background: #E50914;
+            border-color: #E50914;
+        }
+
+        .add-list-btn {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .add-list-btn:hover {
+            background: white;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. MÀN HÌNH CHỌN PROFILE -->
+    <div id="profile-screen" class="container">
+        <h1>Ai đang xem phim thế?</h1>
+        <div class="profiles-grid">
+            <div class="profile-card" onclick="selectProfile('Minh Quân')">
+                <div class="avatar" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png');"></div>
+                <span>Minh Quân</span>
+            </div>
+            <div class="profile-card" onclick="selectProfile('Gia Đình')">
+                <div class="avatar" style="background-image: url('https://i.pinimg.com/565x/1b/a2/e6/1ba2e6d1d4874546c70c91f1024e17fb.jpg');"></div>
+                <span>Gia Đình</span>
+            </div>
+            <div class="profile-card" onclick="selectProfile('Kids')">
+                <div class="avatar" style="background-image: url('https://i.pinimg.com/565x/2e/51/29/2e51293cf019bed2fd6f0c69d712ef7f.jpg');"></div>
+                <span>Kids</span>
+            </div>
+        </div>
+        <button class="manage-profiles-btn">Quản lý hồ sơ</button>
+    </div>
+
+    <!-- 2. MÀN HÌNH CHÍNH (BROWSE) -->
+    <div id="main-screen" class="main-container hidden">
+        <!-- Thanh điều hướng -->
+        <nav class="navbar" id="navbar">
+            <div class="nav-left">
+                <span class="logo" onclick="goHome()">NETFLIX</span>
+                <ul class="nav-links">
+                    <li class="active" onclick="filterCategory('all', this)">Trang chủ</li>
+                    <li onclick="filterCategory('trend', this)">Thịnh hành</li>
+                    <li onclick="filterCategory('tv', this)">Phim Lẻ & Bộ</li>
+                    <li onclick="showMyList(this)">Danh sách của tôi</li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm phim..." onkeyup="searchMovies()">
+                </div>
+                <span id="current-user-profile" class="user-profile-name">Minh Quân</span>
+                <button onclick="logout()" class="logout-btn"><i class="fa-solid fa-arrow-rotate-left"></i> Đổi Profile</button>
+            </div>
+        </nav>
+
+        <!-- Banner chính -->
+        <header class="banner">
+            <div class="banner-contents">
+                <h1 class="banner-title" id="bannerTitle">Stranger Things</h1>
+                <div class="banner-buttons">
+                    <button class="banner-btn play" onclick="openModal('Stranger Things', 'Khi một cậu bé biến thị trấn nhỏ hóa thành bí ẩn, một nhóm bạn cùng thị trấn khám phá ra những thí nghiệm bí mật, lực lượng siêu nhiên đáng sợ và một cô bé kỳ lạ.', 'b9EkMc79ZSU')"><i class="fa-solid fa-play"></i> Phát</button>
+                    <button class="banner-btn info" onclick="openModal('Stranger Things', 'Khi một cậu bé biến thị trấn nhỏ hóa thành bí ẩn, một nhóm bạn cùng thị trấn khám phá ra những thí nghiệm bí mật, lực lượng siêu nhiên đáng sợ và một cô bé kỳ lạ.', 'b9EkMc79ZSU')"><i class="fa-solid fa-circle-info"></i> Thông tin chi tiết</button>
+                </div>
+                <p class="banner-description" id="bannerDesc">
+                    Khi một cậu bé biến thị trấn nhỏ hóa thành bí ẩn, một nhóm bạn cùng thị trấn khám phá ra những thí nghiệm bí mật, lực lượng siêu nhiên đáng sợ và một cô bé kỳ lạ.
+                </p>
+            </div>
+            <div class="banner-fadeBottom"></div>
+        </header>
+
+        <!-- Danh sách hàng phim -->
+        <div class="content-area" id="contentArea">
+            <div class="row" data-category="trend">
+                <h2>Phim Thịnh Hành</h2>
+                <div class="row-posters" id="trendPosters">
+                    <div class="row-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg');" onclick="openModal('Squid Game', 'Trò chơi con mực là một bộ phim truyền hình sinh tồn của Hàn Quốc do Hwang Dong-hyuk viết kịch bản và đạo diễn.', 'oqxAJKy0ii4')"></div>
+                    <div class="row-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg');" onclick="openModal('The Witcher', 'Geralt ở Rivia, một thợ săn quái vật đột biến, di chuyển hướng tới định mệnh của mình trong một thế giới mà mọi người thường độc ác hơn cả quái vật.', 'ndl1W4ltcmg')"></div>
+                    <div class="row-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg');" onclick="openModal('The Queen\'s Gambit', 'Bộ phim xoay quanh cuộc đời của một thần đồng cờ vua mồ côi tên là Beth Harmon trên con đường trở thành đại kiện tướng.', 'oZn3qodwKmI')"></div>
+                    <div class="row-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/qNBAXBIQlnOThrVvA6mA2B5ggV6.jpg');" onclick="openModal('Money Heist', 'Một nhóm tội phạm bất hảo chiếm nhà máy tiền của Tây Ban Nha dưới sự chỉ huy của một thiên tài trí tuệ.', '_InqQJRqGW4')"></div>
+                </div>
+            </div>
+
+            <div class="row" data-category="tv">
+                <h2>Chương Trình Truyền Hình Được Đánh Giá Cao</h2>
+                <div class="row-posters" id="tvPosters">
+                    <div class="row-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg');" onclick="openModal('Breaking Bad', 'Một giáo viên hóa học cấp ba bị chẩn đoán mắc bệnh ung thư phổi không thể chữa khỏi kết hợp với một cựu học sinh để sản xuất và bán methamphetamine.', 'HhesaQXLuRY')"></div>
+                    <div class="row-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/plCiZlgFrvnfoPRzP5H45XoP9H8.jpg');" onclick="openModal('Dark', 'Một cuốn băng VHS mất tích dẫn đến cuộc điều tra về sự mất tích của một đứa trẻ ở một thị trấn nhỏ của Đức.', 'rrwycJ0SQVg')"></div>
+                    <div class="row-poster" style="background-image: url('https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg');" onclick="openModal('Peaky Blinders', 'Câu chuyện về một gia đình gangster khét tiếng ở Birmingham, Anh vào năm 1919.', '2nsT9uQ6CaE')"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MODAL POPUP PHÁT PHIM / CHI TIẾT -->
+    <div id="movieModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-video">
+                <iframe id="modalIframe" src="" allowfullscreen></iframe>
+            </div>
+            <div class="modal-details">
+                <h2 id="modalTitle">Tên Phim</h2>
+                <p id="modalDesc">Mô tả chi tiết nội dung phim sẽ hiển thị ở đây...</p>
+                <button class="add-list-btn" onclick="toggleMyList()"><i class="fa-solid fa-plus"></i> Thêm vào Danh sách của tôi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chuyển đổi Profile
+        function selectProfile(profileName) {
+            document.getElementById('profile-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('current-user-profile').innerText = profileName;
+        }
+
+        // Đổi Profile (Logout)
+        function logout() {
+            document.getElementById('main-screen').classList.add('hidden');
+            document.getElementById('profile-screen').classList.remove('hidden');
+        }
+
+        // Hiệu ứng cuộn đổi màu nền Navbar
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mở Modal Xem Phim / Chi Tiết
+        function openModal(title, desc, youtubeId) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('modalIframe').src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1`;
+            document.getElementById('movieModal').classList.remove('hidden');
+        }
+
+        // Đóng Modal
+        function closeModal() {
+            document.getElementById('movieModal').classList.add('hidden');
+            document.getElementById('modalIframe').src = '';
+        }
+
+        // Tính năng tìm kiếm phim trực tiếp theo từ khóa
+        function searchMovies() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let posters = document.querySelectorAll('.row-poster');
+            
+            posters.forEach(poster => {
+                let movieName = poster.getAttribute('onclick').toLowerCase();
+                if (movieName.includes(input)) {
+                    poster.style.display = 'block';
+                } else {
+                    poster.style.display = 'none';
+                }
+            });
+        }
+
+        // Bộ lọc thể loại trên menu
+        function filterCategory(category, element) {
+            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+            element.classList.add('active');
+            
+            let rows = document.querySelectorAll('.row');
+            rows.forEach(row => {
+                if (category === 'all' || row.getAttribute('data-category') === category) {
+                    row.style.display = 'block';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function goHome() {
+            document.querySelectorAll('.row').forEach(row => row.style.display = 'block');
+            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+            document.querySelector('.nav-links li').classList.add('active');
+        }
+
+        function showMyList(element) {
+            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+            element.classList.add('active');
+            alert("Tính năng 'Danh sách của tôi' đang lưu trữ các phim bạn yêu thích!");
+        }
+
+        function toggleMyList() {
+            alert("Đã thêm phim vào danh sách của bạn thành công!");
+        }
+    </script>
+</body>
+</html>
